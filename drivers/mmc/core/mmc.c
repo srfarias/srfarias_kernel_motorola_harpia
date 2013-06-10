@@ -2025,6 +2025,14 @@ static int mmc_suspend(struct mmc_host *host)
 }
 
 /*
+ * Shutdown callback
+ */
+static int mmc_shutdown(struct mmc_host *host)
+{
+	return _mmc_suspend(host, false);
+}
+
+/*
  * Resume callback from host.
  *
  * This function tries to determine if the same card is still present
@@ -2149,6 +2157,7 @@ static const struct mmc_bus_ops mmc_ops = {
 	.power_restore = mmc_power_restore,
 	.alive = mmc_alive,
 	.change_bus_speed = mmc_change_bus_speed,
+	.shutdown = mmc_shutdown,
 };
 
 static const struct mmc_bus_ops mmc_ops_unsafe = {
@@ -2161,6 +2170,7 @@ static const struct mmc_bus_ops mmc_ops_unsafe = {
 	.power_restore = mmc_power_restore,
 	.alive = mmc_alive,
 	.change_bus_speed = mmc_change_bus_speed,
+	.shutdown = mmc_shutdown,
 };
 
 static void mmc_attach_bus_ops(struct mmc_host *host)
