@@ -40,7 +40,7 @@ function ok
 KERNEL_DIR=$PWD
 TOOLCHAINDIR=$(pwd)/toolchain/gcc-linaro-7.3.1-2018.05-x86_64_arm-linux-gnueabihf
 DATE=$(date +"%d%m%Y")
-KERNEL_NAME="LOS_CUSTOM-Kernel"
+KERNEL_NAME="LOS-CUSTOM-Kernel"
 
 # Warn about cleaning the environment
 
