@@ -40,7 +40,9 @@ function ok
 KERNEL_DIR=$PWD
 TOOLCHAINDIR=$(pwd)/toolchain/gcc-linaro-7.3.1-2018.05-x86_64_arm-linux-gnueabihf
 DATE=$(date +"%d%m%Y")
-KERNEL_NAME="LOS-CUSTOM-Kernel"
+export $(cat Makefile | head -3 | sed 's/ //g')
+KERNEL_VERSION="$VERSION"".""$PATCHLEVEL"".""$SUBLEVEL"
+KERNEL_NAME="Linux_v""$KERNEL_VERSION"
 
 # Warn about cleaning the environment
 
@@ -77,9 +79,9 @@ export DEVICE="$2"
 export KBUILD_BUILD_USER="$3"
 Anykernel_DIR=$KERNEL_DIR/Anykernel2/$DEVICE
 mkdir -p $Anykernel_DIR
-VER="-v70"
-TYPE="-N"
-export FINAL_ZIP="$KERNEL_NAME"-"$DEVICE"-"$DATE""$TYPE""$VER".zip
+# VER="-v70"
+TYPE="N"
+export FINAL_ZIP="$KERNEL_NAME"-"$DEVICE"-"$DATE"-"$TYPE"".zip"
 if [ "$1" == 'auto' ]
 then
  t=$(nproc --all)
@@ -92,7 +94,7 @@ then
  make -j$t clean
 fi
 GCCV=$("$CROSS_COMPILE"gcc -v 2>&1 | tail -1 | cut -d ' ' -f 3)
-printf "\n\n\e[1mTHREADS: \e[0m$t\n\e[1mDEVICE: \e[0m$2\n\e[1mMAINTAINER: \e[0m$3\n\e[1mGCC VERSION: \e[0m$GCCV\n\n"
+printf "\n\n\e[1mTHREADS: \e[0m$t\n\e[1mDEVICE: \e[0m$2\n\e[1mMAINTAINER: \e[0m$3\n\e[1mGCC VERSION: \e[0m$GCCV\n\e[1mVERSION: \e[0m""$KERNEL_VERSION""\n\n"
 echo "=> Making kernel binary..."
 if [ -f "arch/$ARCH/configs/""$2""_defconfig" ]
 then
