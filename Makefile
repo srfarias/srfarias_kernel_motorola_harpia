@@ -4,6 +4,10 @@ SUBLEVEL = 49
 EXTRAVERSION =
 NAME = TOSSUG Baby Fish
 
+# Added by SQK
+TOP := $(dir $(lastword $(MAKEFILE_LIST)))
+print-% : ; @echo $* = $($*)
+
 # *DOCUMENTATION*
 # To see a list of typical targets execute "make help"
 # More info can be located in ./README
@@ -1455,6 +1459,11 @@ endif
 clean := -f $(if $(KBUILD_SRC),$(srctree)/)scripts/Makefile.clean obj
 
 endif	# skip-makefile
+
+# boot image builder
+ifeq "$(TOP)" "./"
+include bootimage.mk
+endif
 
 PHONY += FORCE
 FORCE:
