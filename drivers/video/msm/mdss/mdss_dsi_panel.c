@@ -30,6 +30,10 @@
 #include "mdss_fb.h"
 #include "mdss_dropbox.h"
 
+#ifdef CONFIG_TOUCHSCREEN_DOUBLETAP2WAKE
+#include <linux/input/doubletap2wake.h>
+#endif
+
 #define MDSS_PANEL_DEFAULT_VER 0xffffffffffffffff
 #define MDSS_PANEL_UNKNOWN_NAME "unknown"
 #define DT_CMD_HDR 6
@@ -865,6 +869,12 @@ static int mdss_dsi_panel_on(struct mdss_panel_data *pdata)
 	static int dropbox_count;
 	static int panel_recovery_retry;
 
+#ifdef CONFIG_TOUCHSCREEN_DOUBLETAP2WAKE
+	bool prevent_sleep = (dt2w_switch > 0);
+	if (prevent_sleep && in_phone_call)
+		prevent_sleep = false;
+#endif
+
 	if (pdata == NULL) {
 		pr_err("%s: Invalid input data\n", __func__);
 		return -EINVAL;
@@ -914,6 +924,11 @@ end:
 		dropbox_count = 0;
 
 	pr_info("%s-. Pwr_mode(0x0A) = 0x%x\n", __func__, pwr_mode);
+
+#ifdef CONFIG_TOUCHSCREEN_DOUBLETAP2WAKE
+	dt2w_scr_suspended = false;
+#endif
+
 	return 0;
 }
 
@@ -939,6 +954,12 @@ static int mdss_dsi_panel_off(struct mdss_panel_data *pdata)
 	struct mdss_dsi_ctrl_pdata *ctrl = NULL;
 	struct mdss_panel_info *pinfo;
 
+#ifdef CONFIG_TOUCHSCREEN_DOUBLETAP2WAKE
+	bool prevent_sleep = (dt2w_switch > 0);
+	if (prevent_sleep && in_phone_call)
+		prevent_sleep = false;
+#endif
+
 	if (pdata == NULL) {
 		pr_err("%s: Invalid input data\n", __func__);
 		return -EINVAL;
@@ -958,6 +979,15 @@ static int mdss_dsi_panel_off(struct mdss_panel_data *pdata)
 	if (ctrl->panel_config.bare_board == true)
 		goto end;
 
+#ifdef CONFIG_TOUCHSCREEN_DOUBLETAP2WAKE
+	if (dt2w_switch) {
+		ctrl->off_cmds.cmds[1].payload[0] = 0x11;
+	} else {
+		ctrl->off_cmds.cmds[1].payload[0] = 0x10;
+	}
+	pr_info("[doubletap2wake] payload = %x \n", ctrl->off_cmds.cmds[1].payload[0]);
+#endif
+
 	if (ctrl->off_cmds.cmd_cnt)
 		mdss_dsi_panel_cmds_send(ctrl, &ctrl->off_cmds);
 
@@ -966,6 +996,11 @@ static int mdss_dsi_panel_off(struct mdss_panel_data *pdata)
 end:
 	pinfo->blank_state = MDSS_PANEL_BLANK_BLANK;
 	pr_info("%s-:\n", __func__);
+
+#ifdef CONFIG_TOUCHSCREEN_DOUBLETAP2WAKE
+	dt2w_scr_suspended = true;
+#endif
+
 	return 0;
 }
 
