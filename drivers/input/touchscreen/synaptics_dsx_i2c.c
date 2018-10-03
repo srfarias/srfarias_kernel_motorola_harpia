@@ -5880,6 +5880,9 @@ static int synaptics_dsx_panel_cb(struct notifier_block *nb,
 			synaptics_dsx_display_on(&rmi4_data->i2c_client->dev);
 		}
 	}
+#ifdef CONFIG_TOUCHSCREEN_DOUBLETAP2WAKE
+	}
+#endif
 
 	return 0;
 }
@@ -6090,6 +6093,9 @@ static int synaptics_rmi4_suspend(struct device *dev)
 
 		rmi4_data->ic_on = false;
 	}
+#ifdef CONFIG_TOUCHSCREEN_DOUBLETAP2WAKE
+        }
+#endif
 
 	pm_qos_update_request(&rmi4_data->pm_qos_irq, PM_QOS_DEFAULT_VALUE);
 
@@ -6102,7 +6108,6 @@ void touch_suspend(void)
  	synaptics_rmi4_suspend(&(exp_fn_ctrl.rmi4_data_ptr->input_dev->dev));
 }
 #endif
-
 
  /**
  * synaptics_rmi4_resume()
