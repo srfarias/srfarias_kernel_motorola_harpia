@@ -85,12 +85,14 @@ static ssize_t _name##_store(struct device *dev, \
 	return ret ? ret : count; \
 }
 
-#ifdef CONFIG_FB_MSM_MDSS_BACKLIGHT_DIMMER 
+#define MAX_FBI_LIST 32
+
+#define MDSS_BRIGHT_TO_BL_DIM(out, v) do {\
+			out = (12*v*v+1393*v+30600)/44650;\
+			} while (0)
 bool backlight_dimmer = true;
 module_param(backlight_dimmer, bool, 0755);
-#endif
 
-#define MAX_FBI_LIST 32
 static struct fb_info *fbi_list[MAX_FBI_LIST];
 static int fbi_list_index;
 
@@ -265,26 +267,16 @@ static void mdss_fb_set_bl_brightness(struct led_classdev *led_cdev,
 	if (value > mfd->panel_info->brightness_max)
 		value = mfd->panel_info->brightness_max;
 
-#ifdef CONFIG_FB_MSM_MDSS_BACKLIGHT_DIMMER 
-	if (backlight_dimmer && value < 150) {			
-		if (value < 50)
-			value /= 3;
-		
-		else
-			value /= 2;
+	if (backlight_dimmer) {
+		MDSS_BRIGHT_TO_BL_DIM(bl_lvl, value);
+	} else {
+		/* This maps android backlight level 0 to 255 into
+		   driver backlight level 0 to bl_max with rounding */
+		MDSS_BRIGHT_TO_BL(bl_lvl, value, mfd->panel_info->bl_max,
+					mfd->panel_info->brightness_max);
 	}
-#endif
 
-	/* This maps android backlight level 0 to 255 into
-	   driver backlight level 0 to bl_max with rounding */
-	MDSS_BRIGHT_TO_BL(bl_lvl, value, mfd->panel_info->bl_max,
-				mfd->panel_info->brightness_max);
-
-#ifdef CONFIG_FB_MSM_MDSS_BACKLIGHT_DIMMER 
-	if (!bl_lvl)
-#else
 	if (!bl_lvl && value)
-#endif
 		bl_lvl = 1;
 
 	if (!IS_CALIB_MODE_BL(mfd) && (!mfd->ext_bl_ctrl || !value ||
