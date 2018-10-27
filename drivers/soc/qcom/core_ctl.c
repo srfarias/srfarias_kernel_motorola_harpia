@@ -466,7 +466,7 @@ static void update_running_avg(bool trigger_update)
 		return;
 	}
 	rq_avg_timestamp_ms = now;
-	sched_get_nr_running_avg(&avg, &iowait_avg, &big_avg);
+	sched_get_nr_running_avg(&iowait_avg, &big_avg);
 
 	spin_unlock_irqrestore(&state_lock, flags);
 
