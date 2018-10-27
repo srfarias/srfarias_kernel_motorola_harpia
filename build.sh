@@ -2,7 +2,7 @@
 
 KDIR=$PWD
 SRKDIR=~/srfariaskmau
-TCDIR=~/arm-eabi-5.3/bin/arm-eabi-
+TCDIR=~/arm-eabi-5.x/bin/arm-eabi-
 DATE=$(date +"%d%m%y")
 KNAME="SrfariasKernel"
 
