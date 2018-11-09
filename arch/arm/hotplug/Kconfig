@@ -9,3 +9,9 @@ config CLUSTER_PLUG
           This hotplug implementation always keeps the big cluster
           online, and only activates the little cluster for heavy
           parallel loads.
+
+config THUNDERPLUG_CONTROL
+	bool "Enable plugging down/up of cores using powersuspend"
+	help
+	  This driver uses powersuspend to take down the cpu cores
+	  on a octa core device.
