@@ -38,7 +38,7 @@ function ok
 }
 
 KERNEL_DIR=$PWD
-TOOLCHAINDIR=$(pwd)/toolchain/gcc-linaro-7.3.1-2018.05-x86_64_arm-linux-gnueabihf
+TOOLCHAINDIR="$KERNEL_DIR""/toolchain/arm-eabi-4.8"
 DATE=$(date +"%d%m%Y")
 export $(cat Makefile | head -3 | sed 's/ //g')
 KERNEL_VERSION="$VERSION"".""$PATCHLEVEL"".""$SUBLEVEL"
@@ -73,7 +73,7 @@ cd $KERNEL_DIR
 
 export ARCH=arm
 # export KBUILD_BUILD_HOST="SEND_NUDES__PLEASE"
-export CROSS_COMPILE=$TOOLCHAINDIR/bin/arm-linux-gnueabihf-
+export CROSS_COMPILE=$TOOLCHAINDIR/bin/arm-eabi-
 export USE_CCACHE=1
 export DEVICE="$2"
 export KBUILD_BUILD_USER="$3"
@@ -94,7 +94,7 @@ then
 fi
 GCCV=$("$CROSS_COMPILE"gcc -v 2>&1 | tail -1 | cut -d ' ' -f 3)
 printf "\n\n\e[1mTHREADS: \e[0m$t\n\e[1mDEVICE: \e[0m$2\n\e[1mMAINTAINER: \e[0m$3\n\e[1mGCC VERSION: \e[0m$GCCV\n\e[1mVERSION: \e[0m""$KERNEL_VERSION""\n\n"
-echo "=> Making kernel binary..."
+echo "=> Making kernel binary and DT image..."
 if [ -f "arch/$ARCH/configs/""$2""_defconfig" ]
 then
  make $2_defconfig
@@ -102,6 +102,7 @@ else
  fail "Device codename $2 requested, but no configuration file has been found."
 fi
 make -j$t zImage || fail "Kernel compilation failed, can't continue."
+make -j$t dtimage || fail "Kernel compilation failed, can't continue."
 echo "=> Making modules..."
 make -j$t modules || fail "Module compilation failed, can't continue."
 make -j$t modules_install INSTALL_MOD_PATH=modules INSTALL_MOD_STRIP=1 || fail "Module installation failed, can't continue."
@@ -111,7 +112,7 @@ cp "$Anykernel_DIR/modules/system/lib/modules/wlan.ko" "$Anykernel_DIR/modules/s
 
 ok 'Kernel compilation completed'
 
-cp $KERNEL_DIR/arch/arm/boot/zImage $Anykernel_DIR
+cp $KERNEL_DIR/arch/arm/boot/zImage $KERNEL_DIR/arch/arm/boot/dt.img $Anykernel_DIR
 
 cd $Anykernel_DIR
 
