@@ -1,7 +1,7 @@
 #!/bin/bash
 
 KDIR=$PWD
-SRKDIR=~/srfariaskmaun
+SRKDIR=~/srfariaskmau
 TCDIR=~/arm-eabi-5.x/bin/arm-eabi-
 DATE=$(date +"%d%m%y")
 KNAME="SrfariasKernel"
